@@ -3,22 +3,21 @@
 import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader
+from sklearn.model_selection import train_test_split
 from utils.vocab import CharVocab
 from config import DATA_PATH, MAX_LENGTH
 
 class TransliterationDataset(Dataset):
-    def __init__(self, data_path, input_vocab=None, target_vocab=None):
-        df = pd.read_csv(data_path)
-        self.pairs = list(zip(df['english'], df['punjabi']))
-
+    def __init__(self, pairs, input_vocab=None, target_vocab=None, build_vocab=True):
+        self.pairs = pairs
         self.input_vocab = input_vocab or CharVocab()
         self.target_vocab = target_vocab or CharVocab()
 
-        # Build vocabularies
-        eng_words = [eng for eng, _ in self.pairs]
-        pun_words = [pun for _, pun in self.pairs]
-        self.input_vocab.build_vocab(eng_words)
-        self.target_vocab.build_vocab(pun_words)
+        if build_vocab:
+            eng_words = [eng for eng, _ in self.pairs]
+            pun_words = [pun for _, pun in self.pairs]
+            self.input_vocab.build_vocab(eng_words)
+            self.target_vocab.build_vocab(pun_words)
 
     def __len__(self):
         return len(self.pairs)
@@ -39,10 +38,19 @@ def collate_fn(batch):
 
     return src_padded, tgt_padded, src_lengths, tgt_lengths
 
-def get_dataloaders(batch_size):
-    dataset = TransliterationDataset(DATA_PATH)
-    input_vocab = dataset.input_vocab
-    target_vocab = dataset.target_vocab
+def get_dataloaders(batch_size, val_split=0.1):
+    df = pd.read_csv(DATA_PATH).sample(frac=1).reset_index(drop=True)  # full shuffle
+    full_data = list(zip(df['english'], df['punjabi']))
 
-    loader = DataLoader(dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
-    return loader, input_vocab, target_vocab
+    train_data, val_data = train_test_split(full_data, test_size=val_split, random_state=42)
+
+    train_dataset = TransliterationDataset(train_data)
+    val_dataset = TransliterationDataset(val_data,
+                                         input_vocab=train_dataset.input_vocab,
+                                         target_vocab=train_dataset.target_vocab,
+                                         build_vocab=False)
+
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
+
+    return train_loader, val_loader, train_dataset.input_vocab, train_dataset.target_vocab
