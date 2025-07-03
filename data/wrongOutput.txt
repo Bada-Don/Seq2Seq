@@ -36,3 +36,14 @@ sanjana
 sehaj
 sifat
 yuvraj
+
+Dataset Contains
+
+1. Common names
+2. Places of Punjab 
+3. Common Surnames
+3. Days of Week
+4. Months of year
+5. 1 to 100 Count
+6. A-Z in punjabi
+7. Miscellaneous Words

@@ -7,8 +7,16 @@ def char_level_accuracy(predicted, expected):
     total_chars = 0
     correct_chars = 0
     for pred, exp in zip(predicted, expected):
-        total_chars += max(len(pred), len(exp))
-        correct_chars += sum(p == e for p, e in zip(pred, exp))
+        max_len = max(len(pred), len(exp))
+        total_chars += max_len
+        
+        # Count matches including position-wise comparison
+        for i in range(max_len):
+            pred_char = pred[i] if i < len(pred) else ''
+            exp_char = exp[i] if i < len(exp) else ''
+            if pred_char == exp_char:
+                correct_chars += 1
+    
     return correct_chars / total_chars if total_chars > 0 else 0.0
 
 def evaluate(test_path="data/test_data.csv"):
