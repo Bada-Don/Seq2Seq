@@ -33,14 +33,21 @@ def evaluate_on_val(model, val_loader, criterion):
     return val_loss / len(val_loader)
 
 def train():
-    print("🔁 Loading and shuffling data from translit_dataset.csv...")
-    full_df = pd.read_csv(DATA_PATH).sample(frac=1).reset_index(drop=True)
-    train_df, test_df = train_test_split(full_df, test_size=0.1, random_state=42)
+    # Check if train and test files already exist
+    if os.path.exists("data/train_data.csv") and os.path.exists("data/test_data.csv"):
+        print("📁 Loading existing train_data.csv and test_data.csv...")
+        train_df = pd.read_csv("data/train_data.csv")
+        test_df = pd.read_csv("data/test_data.csv")
+    else:
+        print("🔁 Loading and shuffling data from translit_dataset.csv...")
+        full_df = pd.read_csv(DATA_PATH).sample(frac=1).reset_index(drop=True)
+        train_df, test_df = train_test_split(full_df, test_size=0.1, random_state=42)
 
-    train_df.to_csv("data/train_data.csv", index=False)
-    test_df.to_csv("data/test_data.csv", index=False)
+        os.makedirs("data", exist_ok=True)
+        train_df.to_csv("data/train_data.csv", index=False)
+        test_df.to_csv("data/test_data.csv", index=False)
 
-    print("✅ train_data.csv and test_data.csv saved.")
+        print("✅ train_data.csv and test_data.csv saved.")
 
     train_data = list(zip(train_df['english'], train_df['punjabi']))
     val_data = list(zip(test_df['english'], test_df['punjabi']))

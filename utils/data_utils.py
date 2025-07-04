@@ -1,11 +1,16 @@
 # utils/data_utils.py
 
+import os
 import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader
 from sklearn.model_selection import train_test_split
 from utils.vocab import CharVocab
-from config import DATA_PATH, MAX_LENGTH
+from config import DATA_PATH, MAX_LENGTH, BASE_DIR
+
+# Change DATA_PATH to point to the master file if it doesn't already
+TRAIN_DATA_PATH = os.path.join(BASE_DIR, "data", "train_data.csv")
+TEST_DATA_PATH = os.path.join(BASE_DIR, "data", "test_data.csv")
 
 class TransliterationDataset(Dataset):
     def __init__(self, pairs, input_vocab=None, target_vocab=None, build_vocab=True):
@@ -38,17 +43,19 @@ def collate_fn(batch):
 
     return src_padded, tgt_padded, src_lengths, tgt_lengths
 
-def get_dataloaders(batch_size, val_split=0.1):
-    df = pd.read_csv(DATA_PATH).sample(frac=1).reset_index(drop=True)  # full shuffle
-    full_data = list(zip(df['english'], df['punjabi']))
+def get_dataloaders(batch_size):  # Removed val_split, it's fixed now
+    # Read from the permanent train and test files
+    train_df = pd.read_csv(TRAIN_DATA_PATH)
+    val_df = pd.read_csv(TEST_DATA_PATH)
 
-    train_data, val_data = train_test_split(full_data, test_size=val_split, random_state=42)
+    train_data = list(zip(train_df['english'], train_df['punjabi']))
+    val_data = list(zip(val_df['english'], val_df['punjabi']))
 
-    train_dataset = TransliterationDataset(train_data)
+    train_dataset = TransliterationDataset(train_data)  # This builds the vocab
     val_dataset = TransliterationDataset(val_data,
                                          input_vocab=train_dataset.input_vocab,
                                          target_vocab=train_dataset.target_vocab,
-                                         build_vocab=False)
+                                         build_vocab=False)  # Correctly re-uses vocab
 
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
