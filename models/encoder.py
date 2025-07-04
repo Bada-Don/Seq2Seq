@@ -1,5 +1,3 @@
-# models/encoder.py
-
 import torch.nn as nn
 
 class Encoder(nn.Module):
@@ -11,5 +9,10 @@ class Encoder(nn.Module):
     def forward(self, src, src_lengths):
         embedded = self.embedding(src)
         packed = nn.utils.rnn.pack_padded_sequence(embedded, src_lengths, batch_first=True, enforce_sorted=False)
-        outputs, (hidden, cell) = self.lstm(packed)
-        return hidden, cell
+        packed_outputs, (hidden, cell) = self.lstm(packed)
+        
+        # Unpack sequence
+        outputs, _ = nn.utils.rnn.pad_packed_sequence(packed_outputs, batch_first=True)
+        
+        # Return all encoder outputs, not just the last one
+        return outputs, hidden, cell
