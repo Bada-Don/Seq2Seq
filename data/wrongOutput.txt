@@ -1,30 +1,30 @@
 ajooba
 ajanta, AjMqw
-america
-anandpur
+america, Amirkw
+anandpur, AnMdpur
 aviral
 badi
 black
 bohot
 canada
-dhruv
-gursimran
-harsimran
-hoshiarpur
+dhruv,DrUv
+gursimran,gurismrn
+harsimran,hrismrn
+hoshiarpur,huiSAwrpur
 jaismeen, jYsmIn
 jiya, ijXw
-karde
+karde,krdy
 kardi
-kudi
+kudi,kuVI
 kudiyan
 kutta
-manas
-manreet, mnrIq
-mehak
-mirch, imrc
-munda
-munde
-panjab
+manas,mwns
+manreet,mnrIq
+mehak,
+mirch,imrc
+munda,mMufw
+munde,muMfy
+panjab,pMjwb
 pind
 priyanka
 punjab
@@ -32,10 +32,10 @@ rohit, roihq
 roopnagar
 ropariya
 rupsi
-sanjana
-sehaj
+sanjana,sMjnw
+sehaj,sihj
 sifat
-yuvraj
+yuvraj,Xuvrwj
 
 Dataset Contains
 
@@ -46,4 +46,5 @@ Dataset Contains
 4. Months of year
 5. 1 to 100 Count
 6. A-Z in punjabi
-7. Miscellaneous Words
+7. Traditional/Cultural Words
+8. Miscellaneous Words
